@@ -7,7 +7,7 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer() 
 k_folds=5
 
-def count(word,train_set,t):
+def count(word,train_set,t):		#function to calculate the word count.
 	c=0
 	for review in train_set:
 		if (word in review) and (review[-1]==t):
@@ -23,19 +23,17 @@ def classify(train_set,test_set):
 			y_1=y_1+1
 		if(review[-1]=='0'):
 			y_0=y_0+1
-	# print(test_set)
-	# print("*********")
-	# print(train_set)
-	# print("*************************")
+	
 	for review in test_set:
 		p0=log(y_0/(y_0+y_1))
 		p1=log(y_1/(y_1+y_0))
 		for i in range(len(review)-1):
 			
-				p0+=log((count(review[i],train_set,'0')+1)/(y_0+3543))
+				p0+=log((count(review[i],train_set,'0')+1)/(y_0+3543))  #computing the product of probabilities of the word if it belongs to 0 class 
 			
-				p1+=log((count(review[i],train_set,'1')+1)/(y_1+3543))
-		pred='1' if p1>p0 else '0'
+				p1+=log((count(review[i],train_set,'1')+1)/(y_1+3543))	#computing the product of probabilities of the word if it belongs to 1 class
+		
+		pred='1' if p1>p0 else '0'		#classifying the review in test set based on  the probability of it lying in  either class.
 
 		# print(review,pred)
 		if pred==review[-1] and pred=='1':
@@ -47,19 +45,11 @@ def classify(train_set,test_set):
 			fp+=1
 		elif pred=='0' and review[-1]=='0':
 			tn+=1
-		# global correct
-		# global total
-		# if pred==review[-1]:
-
-		# 	correct+=1
-		# 	total+=1
-		# else:
-		# 	total+=1
-		# print(review,pred)
+		
 	precision=(tp/(tp+fn))
 	recall=(tp/(tp+fp))
 	print(precision,recall)
-	f1_score=(2*precision*recall)/(precision+recall)
+	f1_score=(2*precision*recall)/(precision+recall) # computing the accuracy measures
 	print('accuracy: ',(tp+tn)/(tp+tn+fp+fn))
 	return f1_score,(tp+tn)/(tp+tn+fp+fn)
 def evaluate(ip):
@@ -94,8 +84,7 @@ def cross_validation_split(dataset, n_folds):
             fold.append(dataset_copy.pop(index))
         dataset_split.append(fold)
     return dataset_split
-
-
+												# reading the input from text file.
 f=open('a1_d3.txt','rt')
 fr=f.readlines()
 f.close()
@@ -104,25 +93,10 @@ for line in fr:
 	line=line.replace('.',' ')
 	for char in string.punctuation:
 		line=line.replace(char,'')
-	ip.append(line.strip('\n').split())
-# for review in ip:
-# 	next=review[0]
-# 	for i in range(len(review)-2):
-# 		review[i]=next+' '+review[i+1]
-# 		next=review[i+1]
-# 	review[len(review)-2]=review[len(review)-1]
-# 	review.pop()
-# for review in ip:
-# 	for word in review:
-# 		print(word)
-# 		# word=lemmatizer.lemmatize(word,pos="a")
-# 		print(lemmatizer.lemmatize(word,pos="a"))
-# 		print("*************")
-ip=cross_validation_split(ip,k_folds)
-# print(ip)
-# for x in ip:
-	#print(x)
-# print(len(ip))
+	ip.append(line.strip('\n').split()) #splitting each review into its component words ,you can extend this by splitting into n-grams.
 
+ip=cross_validation_split(ip,k_folds)
+
+# function call to classify the reviews.
 evaluate(ip)
 # print(correct,total)
